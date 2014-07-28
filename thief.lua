@@ -1,4 +1,4 @@
-local class = require 'libs/middleclass'
+local class = require 'libs.middleclass'
 local MovingEntity = require 'moving_entity'
 
 local Thief = class('Thief', MovingEntity)

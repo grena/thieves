@@ -1,5 +1,5 @@
-local class          = require 'libs/middleclass'
-local _              = require 'libs/moses'
+local class          = require 'libs.middleclass'
+local _              = require 'libs.moses'
 local Thief          = require 'thief'
 local Entity         = require 'entity'
 local Position       = require 'position'
@@ -42,7 +42,7 @@ function Game:update(dt)
     self:update_entities_color()
 
     -- Create a thief with cooldown
-    self:create_thief()
+    -- self:create_thief()
 
     -- Move all thieves
     self:move_thieves(dt)

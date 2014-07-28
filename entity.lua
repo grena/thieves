@@ -1,4 +1,4 @@
-local class = require 'libs/middleclass'
+local class = require 'libs.middleclass'
 local Position = require 'position'
 
 local Entity = class('Entity')
