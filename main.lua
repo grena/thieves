@@ -4,6 +4,10 @@ local HUD   = require 'hud'
 function love.load()
 
     love.window.setTitle( 'Thieves !' )
+    love.window.setMode( 800, 800, {
+        -- fullscreen=true,
+        -- fullscreentype='desktop'
+    })
 
     global = {}
 
@@ -25,7 +29,8 @@ function love.load()
         },
         entities = {
             chest = love.graphics.newImage( 'gfx/chest.png' ),
-            thief = love.graphics.newImage( 'gfx/thief_small.png' )
+            thief = love.graphics.newImage( 'gfx/thief_small.png' ),
+            gold_chest = love.graphics.newImage( 'gfx/gold_chest.png' )
         }
     }
 
@@ -35,14 +40,19 @@ function love.load()
         killed = love.audio.newSource( 'sfx/explosion.wav', 'static' ),
         chest = love.audio.newSource( 'sfx/lose.wav', 'static' ),
         thief_appears = love.audio.newSource( 'sfx/thief_appears.wav', 'static' ),
-        lose = love.audio.newSource( 'sfx/lose.wav', 'static' )
+        lose = love.audio.newSource( 'sfx/lose.wav', 'static' ),
+        coin = love.audio.newSource( 'sfx/coin.wav', 'static' ),
+        music = love.audio.newSource( 'sfx/drumloop.wav', 'stream' )
     }
+
+    -- global.sounds.music:setLooping(true)
+    -- love.audio.play( global.sounds['music'] )
 
     -- Game parameters
     global.game_parameters = {
         chest_padding = {
-            x = 200,
-            y = 100
+            x = 300,
+            y = 300
         }
     }
 

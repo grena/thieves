@@ -1,18 +1,27 @@
-local class  = require 'libs/middleclass'
-local _      = require 'libs/moses'
-local Thief  = require 'thief'
-local Entity = require 'entity'
-local Position = require 'position'
+local class          = require 'libs/middleclass'
+local _              = require 'libs/moses'
+local Thief          = require 'thief'
+local Entity         = require 'entity'
+local Position       = require 'position'
+local DayNightEngine = require 'day_night_engine'
 
 local Game = class('Game')
 
 function Game:initialize(global)
     self.global = global
     self.thieves = {}
+    self.gold_chests = {}
+
+    self.day_night_engine = DayNightEngine:new()
 
     self.time_marker_new_ennemy = nil
     self.time_before_new_ennemy = 3
     self.killed_counter = 0
+
+    self.resources = {
+        gold = 50,
+        wood = 20
+    }
 
     Thief.image = self.global.graphics.entities['thief']
 
@@ -27,6 +36,10 @@ function Game:initialize(global)
 end
 
 function Game:update(dt)
+
+    -- Update day night cycle
+    self.day_night_engine:update()
+    self:update_entities_color()
 
     -- Create a thief with cooldown
     self:create_thief()
@@ -45,6 +58,17 @@ function Game:draw()
 
     -- Draw thieves
     self:render_thieves()
+
+    -- Draw gold chests
+    self:render_gold_chests()
+end
+
+function Game:update_entities_color()
+    self.chest.image_color = self.day_night_engine.current_color
+
+    for index, thief in ipairs(self.thieves) do
+        thief.image_color = self.day_night_engine.current_color
+    end
 end
 
 function Game:mousepressed(x, y, button)
@@ -81,6 +105,11 @@ end
 
 function Game:create_thief()
 
+    -- Only at night
+    if self.day_night_engine.current_hour >= 6 and self.day_night_engine.current_hour <= 22 then
+        return false
+    end
+
     if (self.time_marker_new_ennemy == nil) then
         self.time_marker_new_ennemy = love.timer.getTime()
     end
@@ -115,13 +144,30 @@ function Game:create_thief()
 
         new_thief.position = Position:new( birth_x, birth_y )
         new_thief.destination = self.chest.position -- Go and attack the chest !! >:)
-        new_thief.speed = love.math.random( 15, 30 )
+        new_thief.speed = love.math.random( 15, 35 )
 
         table.insert(self.thieves, new_thief)
 
         -- Reset apparition cooldown
         self.time_marker_new_ennemy = love.timer.getTime()
     end
+end
+
+function Game:create_gold_chest()
+
+        local new_gold_chest = Entity:new()
+        new_gold_chest.image = self.global.graphics.entities['gold_chest']
+        new_gold_chest.hitbox_size = 40
+        new_gold_chest.hitbox_color = {255, 255, 0, 80}
+
+        -- Apparation zone
+        local w_width, w_height = love.window.getDimensions()
+        local birth_x = love.math.random( 100, w_width - 100)
+        local birth_y = love.math.random( 100, w_height - 100)
+
+        new_gold_chest.position = Position:new( birth_x, birth_y )
+
+        table.insert(self.gold_chests, new_gold_chest)
 end
 
 function Game:move_thieves(dt)
@@ -161,8 +207,7 @@ function Game:trigger_attack(x, y)
 
             if thief.dead then
                 one_dead = true
-                love.audio.play( self.global.sounds['killed'] )
-                self.killed_counter = self.killed_counter + 1
+                self:trigger_dead_thief(thief)
             end
         end
     end
@@ -177,9 +222,16 @@ function Game:trigger_attack(x, y)
     end
 end
 
+function Game:trigger_dead_thief(thief)
+    love.audio.play( self.global.sounds['killed'] )
+    self.killed_counter = self.killed_counter + 1
+    self.resources.gold = self.resources.gold + 5
+end
+
 function Game:render_background()
     for i = 0, love.graphics.getWidth() / self.background_image:getWidth() do
         for j = 0, love.graphics.getHeight() / self.background_image:getHeight() do
+            love.graphics.setColor( self.day_night_engine.current_color )
             love.graphics.draw(self.background_image, i * self.background_image:getWidth(), j * self.background_image:getHeight())
         end
     end
@@ -188,6 +240,12 @@ end
 function Game:render_thieves()
     for index, thief in ipairs(self.thieves) do
         thief:draw()
+    end
+end
+
+function Game:render_gold_chests()
+    for index, gold_chest in ipairs(self.gold_chests) do
+        gold_chest:draw()
     end
 end
 

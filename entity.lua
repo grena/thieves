@@ -5,6 +5,7 @@ local Entity = class('Entity')
 
 function Entity:initialize()
     self.image = nil
+    self.image_color = {255, 255, 255}
     self.position = Position:new(0, 0)
     self.orientation = 0
     self.hitbox_size = 0        -- Diameteer
@@ -21,11 +22,21 @@ end
 function Entity:draw()
 
     -- Render hitbox circle
-    love.graphics.setColor( self.hitbox_color )
-    love.graphics.circle( 'line', self.position.x, self.position.y, self.hitbox_size/2, 20 )
+    self:draw_hitbox()
 
     -- Render graphic image
-    love.graphics.setColor( 255, 255, 255 )
+    self:draw_image()
+end
+
+-- Render hitbox circle
+function Entity:draw_hitbox()
+    love.graphics.setColor( self.hitbox_color )
+    love.graphics.circle( 'line', self.position.x, self.position.y, self.hitbox_size/2, 20 )
+end
+
+-- Render graphic image
+function Entity:draw_image()
+    love.graphics.setColor( self.image_color )
     love.graphics.draw( self.image,
                         self.position.x,
                         self.position.y,

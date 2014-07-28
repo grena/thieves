@@ -14,6 +14,7 @@ function Thief:initialize()
     MovingEntity:initialize(self)
 
     self.image = Thief.image
+    self.hitbox_color = {255, 0, 0, 180}
     self.speed = Thief.default_speed
     self.hitbox_size = Thief.hitbox_size
     self.pv = Thief.default_pv
